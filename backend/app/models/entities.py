@@ -258,6 +258,70 @@ class VideoExport(Base):
     )
 
 
+class FlowCharacter(Base):
+    __tablename__ = "flow_characters"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_uuid)
+    name: Mapped[str] = mapped_column(String(120), nullable=False)
+    description: Mapped[str] = mapped_column(Text, default="")
+    appearance_prompt: Mapped[str] = mapped_column(Text, default="")
+    reference_image_path: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
+
+
+class FlowProject(Base):
+    __tablename__ = "flow_projects"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_uuid)
+    title: Mapped[str] = mapped_column(String(200), nullable=False)
+    prompt: Mapped[str] = mapped_column(Text, nullable=False)
+    aspect_ratio: Mapped[str] = mapped_column(String(10), default="16:9")
+    target_duration_sec: Mapped[int] = mapped_column(Integer, default=120)
+    visual_style: Mapped[str] = mapped_column(String(80), default="cinematic")
+    quality: Mapped[str] = mapped_column(String(30), default="lite")
+    provider: Mapped[str] = mapped_column(String(40), default="veo_3_1")
+    voice_id: Mapped[str] = mapped_column(String(80), default="af_heart")
+    bgm_path: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    sfx_path: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    status: Mapped[str] = mapped_column(String(30), default="draft")
+    final_mp4_path: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    duration_sec: Mapped[float] = mapped_column(Float, default=0.0)
+    error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, onupdate=_utcnow
+    )
+
+
+class FlowScene(Base):
+    __tablename__ = "flow_scenes"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_uuid)
+    flow_project_id: Mapped[str] = mapped_column(
+        String(36), ForeignKey("flow_projects.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    order_index: Mapped[int] = mapped_column(Integer, default=0)
+    duration_sec: Mapped[int] = mapped_column(Integer, default=8)
+    scene_prompt: Mapped[str] = mapped_column(Text, nullable=False)
+    narration_text: Mapped[str] = mapped_column(Text, default="")
+    camera_motion: Mapped[str] = mapped_column(String(80), default="smooth_tracking")
+    character_ids_json: Mapped[list | None] = mapped_column(JSON, nullable=True)
+    first_frame_path: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    last_frame_path: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    video_clip_path: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    audio_clip_path: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    variation_index: Mapped[int] = mapped_column(Integer, default=1)
+    version: Mapped[int] = mapped_column(Integer, default=1)
+    history_json: Mapped[list | None] = mapped_column(JSON, nullable=True)
+    provider_used: Mapped[str | None] = mapped_column(String(40), nullable=True)
+    status: Mapped[str] = mapped_column(String(30), default="planned")
+    error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, onupdate=_utcnow
+    )
+
+
 class JobLog(Base):
     __tablename__ = "job_logs"
 

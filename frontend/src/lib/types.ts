@@ -167,3 +167,67 @@ export interface HealthDetailed {
   storage: { free_gb: number; total_gb: number };
   ram?: { total_gb: number; available_gb: number; percent: number };
 }
+
+export interface FlowProviderCapability {
+  id: string;
+  name: string;
+  kind: "cloud_api" | "local_gpu";
+  available: boolean;
+  reason: string;
+  max_clip_duration_sec: number;
+  resolutions: string[];
+  supports_i2v: boolean;
+  supports_first_last_frame: boolean;
+  supports_extension: boolean;
+  supports_reference_images: boolean;
+  cost_per_sec_usd: number;
+  estimated_120s_cost_usd: number;
+  requirements: string;
+}
+
+export interface FlowCharacter {
+  id: string;
+  name: string;
+  description: string;
+  appearance_prompt: string;
+  reference_image_path: string | null;
+}
+
+export interface FlowScene {
+  id: string;
+  flow_project_id: string;
+  order_index: number;
+  duration_sec: number;
+  scene_prompt: string;
+  narration_text: string;
+  camera_motion: string;
+  character_ids_json: string[] | null;
+  first_frame_path: string | null;
+  last_frame_path: string | null;
+  video_clip_path: string | null;
+  variation_index: number;
+  version: number;
+  history_json: Array<{ version: number; video_clip_path: string; scene_prompt: string }> | null;
+  provider_used: string | null;
+  status: string;
+  error_message: string | null;
+}
+
+export interface FlowProject {
+  id: string;
+  title: string;
+  prompt: string;
+  aspect_ratio: "16:9" | "9:16" | "1:1";
+  target_duration_sec: number;
+  visual_style: string;
+  quality: string;
+  provider: string;
+  voice_id: string;
+  bgm_path: string | null;
+  sfx_path: string | null;
+  status: string;
+  final_mp4_path: string | null;
+  duration_sec: number;
+  error_message: string | null;
+  scenes?: FlowScene[];
+}

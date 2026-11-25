@@ -71,6 +71,10 @@ class Settings(BaseSettings):
     CLOUD_GPU_ENDPOINT: str = ""
     CLOUD_AVATAR_ENGINE: str = "echomimic_v2"
 
+    # Google Veo / Video Generation API (Server-Side Only)
+    GEMINI_API_KEY: str = ""
+    VEO_DEFAULT_MODEL: str = "veo-3.1-lite-generate-preview"
+
     @property
     def resolved_storage_root(self) -> Path:
         if self.STORAGE_ROOT.is_absolute():

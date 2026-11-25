@@ -2,6 +2,10 @@ import type {
   AudioTrack,
   AvatarJob,
   CharacterRecord,
+  FlowCharacter,
+  FlowProject,
+  FlowProviderCapability,
+  FlowScene,
   HealthDetailed,
   Project,
   ScriptRecord,
@@ -218,4 +222,80 @@ export const api = {
     request<VideoExport>(`/api/v1/exports/${exportId}/re-export`, { method: "POST" }),
   exportPreviewUrl: (exportId: string) => `${API_BASE}/api/v1/exports/${exportId}/preview`,
   exportDownloadUrl: (exportId: string) => `${API_BASE}/api/v1/exports/${exportId}/download`,
+
+  // Google Flow Studio
+  listFlowProviders: () => request<FlowProviderCapability[]>("/api/v1/flow/providers"),
+  listFlowCharacters: () => request<FlowCharacter[]>("/api/v1/flow/characters"),
+  createFlowCharacter: (name: string, description: string, appearancePrompt: string, file?: File | null) => {
+    const fd = new FormData();
+    fd.append("name", name);
+    fd.append("description", description);
+    fd.append("appearance_prompt", appearancePrompt);
+    if (file) fd.append("image", file);
+    return request<FlowCharacter>("/api/v1/flow/characters", { method: "POST", body: fd });
+  },
+  deleteFlowCharacter: (id: string) =>
+    request<void>(`/api/v1/flow/characters/${id}`, { method: "DELETE" }),
+  flowCharacterImageUrl: (id: string) => `${API_BASE}/api/v1/flow/characters/${id}/image`,
+
+  listFlowProjects: () => request<FlowProject[]>("/api/v1/flow/projects"),
+  getFlowProject: (id: string) => request<FlowProject>(`/api/v1/flow/projects/${id}`),
+  createFlowProject: (payload: {
+    title: string;
+    prompt: string;
+    aspect_ratio: string;
+    target_duration_sec: number;
+    visual_style: string;
+    quality: string;
+    provider: string;
+    voice_id: string;
+    character_ids: string[];
+  }) =>
+    request<FlowProject>("/api/v1/flow/projects", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
+  uploadFlowMedia: (projectId: string, kind: "bgm" | "sfx", file: File) => {
+    const fd = new FormData();
+    fd.append("file", file);
+    return request<{ kind: string; path: string }>(
+      `/api/v1/flow/projects/${projectId}/upload-media?kind=${kind}`,
+      { method: "POST", body: fd },
+    );
+  },
+  updateFlowScene: (sceneId: string, payload: Record<string, unknown>) =>
+    request<FlowScene>(`/api/v1/flow/scenes/${sceneId}`, {
+      method: "PATCH",
+      body: JSON.stringify(payload),
+    }),
+  uploadSceneFrame: (sceneId: string, kind: "first" | "last", file: File) => {
+    const fd = new FormData();
+    fd.append("image", file);
+    return request<FlowScene>(`/api/v1/flow/scenes/${sceneId}/upload-frame?kind=${kind}`, {
+      method: "POST",
+      body: fd,
+    });
+  },
+  createSceneVariations: (sceneId: string, count = 2) =>
+    request<FlowScene[]>(`/api/v1/flow/scenes/${sceneId}/variations?count=${count}`, {
+      method: "POST",
+    }),
+  generateFlowScene: (sceneId: string) =>
+    request<FlowScene>(`/api/v1/flow/scenes/${sceneId}/generate`, { method: "POST" }),
+  extendFlowScene: (sceneId: string, extensionPrompt: string) => {
+    const fd = new FormData();
+    fd.append("extension_prompt", extensionPrompt);
+    return request<FlowScene>(`/api/v1/flow/scenes/${sceneId}/extend`, {
+      method: "POST",
+      body: fd,
+    });
+  },
+  flowScenePreviewUrl: (sceneId: string) => `${API_BASE}/api/v1/flow/scenes/${sceneId}/preview`,
+  assembleFlowProject: (projectId: string, includeSubtitles = true) =>
+    request<FlowProject>(
+      `/api/v1/flow/projects/${projectId}/assemble?include_subtitles=${includeSubtitles}`,
+      { method: "POST" },
+    ),
+  flowFinalPreviewUrl: (projectId: string) => `${API_BASE}/api/v1/flow/projects/${projectId}/preview`,
+  flowFinalDownloadUrl: (projectId: string) => `${API_BASE}/api/v1/flow/projects/${projectId}/download`,
 };

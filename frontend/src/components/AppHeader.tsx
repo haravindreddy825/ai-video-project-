@@ -70,9 +70,33 @@ export function AppHeader() {
             </div>
             <div>
               <div className="text-sm font-bold leading-tight">OpenSource AI Video Studio</div>
-              <div className="text-xs text-slate-500">9:16 Vertical (1080×1920) • Top/Bottom 50/50</div>
+              <div className="text-xs text-slate-500">Flow Cinematic &amp; 9:16 Educational</div>
             </div>
           </Link>
+
+          <nav className="flex flex-wrap items-center gap-1 text-xs font-semibold text-slate-600">
+            <Link href="/" className="rounded-lg px-2.5 py-1.5 hover:bg-slate-100 hover:text-slate-900">
+              Home
+            </Link>
+            <Link
+              href="/flow"
+              className="rounded-lg bg-blue-50 px-2.5 py-1.5 text-blue-700 hover:bg-blue-100"
+            >
+              Create Video
+            </Link>
+            <Link href="/explore" className="rounded-lg px-2.5 py-1.5 hover:bg-slate-100 hover:text-slate-900">
+              Explore
+            </Link>
+            <Link href="/characters" className="rounded-lg px-2.5 py-1.5 hover:bg-slate-100 hover:text-slate-900">
+              My Characters
+            </Link>
+            <Link href="/voices" className="rounded-lg px-2.5 py-1.5 hover:bg-slate-100 hover:text-slate-900">
+              My Voices
+            </Link>
+            <Link href="/videos" className="rounded-lg px-2.5 py-1.5 hover:bg-slate-100 hover:text-slate-900">
+              My Videos
+            </Link>
+          </nav>
 
           <div className="flex flex-wrap items-center gap-2 text-xs">
             {health ? (
