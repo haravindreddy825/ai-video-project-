@@ -36,3 +36,9 @@ backend\.venv\Scripts\python.exe scripts\download_audio_models.py
 ## 4. Bundled FFmpeg & Final 1080x1920 Export (Phase 5)
 
 The backend uses `imageio-ffmpeg` (`ffmpeg-win-x86_64` with `vstack`, `ass`, `loudnorm`, `libx264`, and `aac`) so Phase 3–5 video rendering and composition work out of the box on Windows 11 even if system `ffmpeg` is not on `PATH`. CPU `libx264` is the reliable default; `prefer_nvenc=true` is optional and auto-falls back to `libx264` if NVENC is unavailable.
+
+## 5. Next.js Studio UI & Authentication (Phase 6)
+
+- Start the frontend with `.\scripts\start_frontend.ps1` (`http://localhost:3000`).
+- Production builds use `npm run build` (`next build --webpack` for Windows compatibility).
+- To require login for `/api/v1/auth/*` and protected studio sessions, set `AUTH_REQUIRED=true`, `STUDIO_USERNAME`, `STUDIO_PASSWORD`, and `AUTH_SECRET` in `.env`.

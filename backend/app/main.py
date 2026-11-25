@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from app.api.audio_routes import audio_router
+from app.api.auth_routes import auth_router
 from app.api.avatar_routes import avatar_router
 from app.api.export_routes import export_router
 from app.api.routes import router
@@ -39,6 +40,7 @@ def create_app() -> FastAPI:
             content={"detail": "Internal server error", "type": type(exc).__name__},
         )
 
+    app.include_router(auth_router)
     app.include_router(router)
     app.include_router(audio_router)
     app.include_router(avatar_router)

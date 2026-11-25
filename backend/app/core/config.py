@@ -20,6 +20,12 @@ class Settings(BaseSettings):
     BACKEND_PORT: int = 8000
     FRONTEND_URL: str = "http://localhost:3000"
 
+    # Authentication (optional gate; set AUTH_REQUIRED=true for production)
+    AUTH_REQUIRED: bool = False
+    STUDIO_USERNAME: str = "admin"
+    STUDIO_PASSWORD: str = "studio-local"
+    AUTH_SECRET: str = "dev-local-studio-secret-key"
+
     # Database (SQLite async default for local dev; PostgreSQL/Supabase for production)
     DATABASE_URL: str = "sqlite+aiosqlite:///./storage/ai_video_studio.db"
 

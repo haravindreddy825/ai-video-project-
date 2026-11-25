@@ -170,6 +170,86 @@ async def delete_project(project_id: str, db: AsyncSession = Depends(get_db)) ->
     await db.commit()
 
 
+@router.post(
+    "/api/v1/projects/{project_id}/duplicate",
+    response_model=ProjectResponse,
+    status_code=status.HTTP_201_CREATED,
+    tags=["Projects"],
+)
+async def duplicate_project(
+    project_id: str, db: AsyncSession = Depends(get_db)
+) -> Project:
+    orig = await db.get(Project, project_id)
+    if not orig:
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    copy_proj = Project(
+        title=f"{orig.title} (Copy)",
+        description=orig.description,
+        target_duration_sec=orig.target_duration_sec,
+        resolution=orig.resolution,
+        layout_mode=orig.layout_mode,
+        compute_mode=orig.compute_mode,
+        status="draft",
+    )
+    db.add(copy_proj)
+    await db.flush()
+
+    latest_script = (
+        await db.execute(
+            select(Script).where(Script.project_id == project_id).order_by(Script.version.desc())
+        )
+    ).scalars().first()
+    if latest_script:
+        db.add(
+            Script(
+                project_id=copy_proj.id,
+                version=1,
+                raw_text=latest_script.raw_text,
+                beats_json=latest_script.beats_json,
+                estimated_duration_sec=latest_script.estimated_duration_sec,
+            )
+        )
+
+    chars = (
+        await db.execute(
+            select(CharacterReference).where(CharacterReference.project_id == project_id)
+        )
+    ).scalars().all()
+    for ch in chars:
+        db.add(
+            CharacterReference(
+                project_id=copy_proj.id,
+                name=ch.name,
+                reference_image_path=ch.reference_image_path,
+                width=ch.width,
+                height=ch.height,
+                identity_pack_json=ch.identity_pack_json,
+            )
+        )
+
+    voices = (
+        await db.execute(
+            select(VoiceConfig).where(VoiceConfig.project_id == project_id)
+        )
+    ).scalars().all()
+    for vc in voices:
+        db.add(
+            VoiceConfig(
+                project_id=copy_proj.id,
+                engine=vc.engine,
+                preset_voice_id=vc.preset_voice_id,
+                sample_audio_path=vc.sample_audio_path,
+                speaking_rate=vc.speaking_rate,
+                volume=vc.volume,
+            )
+        )
+
+    await db.commit()
+    await db.refresh(copy_proj)
+    return copy_proj
+
+
 # --- Scripts ---
 @router.post(
     "/api/v1/projects/{project_id}/scripts",

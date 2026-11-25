@@ -77,7 +77,17 @@ ai-video-studio/
 
 ---
 
+## Quick Start (Windows 11)
+
+1. **Start FastAPI Backend** (`http://localhost:8000`, Swagger at `/docs`):
+   ```powershell
+   .\scripts\start_backend.ps1
+   ```
+2. **Start Next.js Studio UI** (`http://localhost:3000`):
+   ```powershell
+   .\scripts\start_frontend.ps1
+   ```
+
 ## Status
 
-- **Phase 0–5 (Backend Core, Audio & Alignment, Avatar Animation, Educational Visuals, 1080x1920 Compositor & MP4 Export)**: Implemented, end-to-end tested (30s and 2-minute 1080x1920 MP4 exports), and verified.
-- **Phase 6 (Next.js Studio UI)**: Pending.
+- **Phases 0–6 (Backend Core, Audio & Alignment, Avatar Animation, Educational Visuals, 1080x1920 Compositor & MP4 Export, Next.js Studio UI)**: Implemented, tested, and pushed.
