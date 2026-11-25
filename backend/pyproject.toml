@@ -1,0 +1,10 @@
+[project]
+name = "ai-video-studio-backend"
+version = "0.1.0"
+description = "OpenSource AI Video Studio Backend (FastAPI + Celery + GPU Scheduler)"
+requires-python = ">=3.11,<3.13"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+pythonpath = ["."]
+testpaths = ["tests"]

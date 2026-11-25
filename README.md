@@ -1,16 +1,16 @@
 # OpenSource AI Video Studio
 
-A self-hosted, modular AI video production studio that transforms a **written script**, a **character reference image**, and a **voice selection or sample** into a synchronized **2-minute (or longer) educational video** featuring a **50% educational visuals / 50% animated avatar** split-screen layout and a single continuous MP4 export.
+A self-hosted, modular AI video production studio that transforms a **written script**, a **character reference image**, and a **voice selection or sample** into a synchronized **2-minute (or longer) vertical 9:16 (1080x1920) educational video** featuring a **top/bottom 50/50 split-screen layout** (top `1080x960` educational visuals, bottom `1080x960` animated avatar) and a single continuous MP4 export.
 
 ---
 
 ## Core Capabilities
 
-- **50/50 Split-Screen Educational Format**: Dedicated half-screen for synchronized educational visuals (diagrams, slides, code/charts, and AI-generated illustrations) and half-screen for an expressive animated presenter.
-- **Script-to-Timeline Synchronization**: Uses `faster-whisper` word-level forced alignment to lock visual transitions, emphasis overlays, and subtitles to exact spoken timestamps.
-- **Expressive Avatar Animation**: Supports lip synchronization, emotion-aware facial expressions, natural blinking, eye gaze, head motion, and (via cloud GPU mode) upper-body & hand gestures.
-- **Hardware-Aware Execution (6 GB VRAM Safe)**: Built around a **Sequential GPU Mutex** that loads one model at a time on local 6 GB VRAM GPUs (e.g., NVIDIA RTX 3050 Laptop), with an interchangeable **Cloud GPU Backend** for heavy full-body diffusion models (`LongCat-Video-Avatar`, `EchoMimicV2`, `InfiniteTalk`).
-- **Interchangeable AI Engines**: Clean abstract interfaces for TTS, ASR, Visual Generation, and Avatar Animation — no vendor lock-in.
+- **Vertical 9:16 Top/Bottom 50/50 Layout (`1080x1920`)**: Top `1080x960` for synchronized educational visuals (diagrams, slides, code/charts, and AI-generated illustrations) and bottom `1080x960` for an expressive animated presenter.
+- **Voice-First Timeline Source of Truth**: Complete voice narration is generated first, then `faster-whisper` word-level forced alignment establishes the authoritative timeline for all visual transitions, avatar chunks, and captions.
+- **Expressive & Identity-Consistent Avatar**: Maintains character identity across every chunked segment with frame/audio continuity checks, lip sync, emotion-aware expressions, blinking, and head motion (plus upper-body & hand gestures via optional Cloud GPU).
+- **Cross-Process GPU Locking & VRAM Guard**: Uses a cross-process Redis + file lock, real-time VRAM monitoring, automatic model unloading, and local/cloud fallback for 6 GB VRAM GPUs (RTX 3050 Laptop).
+- **Resilient Job Recovery**: Per-stage checkpointing with automatic retry and recovery on transient failures or CUDA OOM.
 
 ---
 

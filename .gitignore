@@ -18,6 +18,8 @@ frontend/dist/
 .env.*.local
 
 # Storage & Large Media / Weights
+storage/ai_video_studio.db
+storage/backend.log
 storage/inputs/*
 storage/intermediate/*
 storage/outputs/*
