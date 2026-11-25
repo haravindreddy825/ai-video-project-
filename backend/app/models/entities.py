@@ -181,6 +181,55 @@ class AvatarJob(Base):
     )
 
 
+class VisualScene(Base):
+    __tablename__ = "visual_scenes"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_uuid)
+    project_id: Mapped[str] = mapped_column(
+        String(36), ForeignKey("projects.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    audio_id: Mapped[str] = mapped_column(String(36), nullable=False, index=True)
+    order_index: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    start_ms: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    end_ms: Mapped[int] = mapped_column(Integer, nullable=False, default=3000)
+    sentence_text: Mapped[str] = mapped_column(Text, nullable=False)
+    main_concept: Mapped[str] = mapped_column(String(200), default="Core Concept")
+    keywords_json: Mapped[list | None] = mapped_column(JSON, nullable=True)
+    visual_format: Mapped[str] = mapped_column(String(40), default="text_animation")
+    visual_description: Mapped[str] = mapped_column(Text, default="")
+    title_text: Mapped[str] = mapped_column(String(200), default="")
+    body_bullets_json: Mapped[list | None] = mapped_column(JSON, nullable=True)
+    diagram_spec_json: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    animation_style: Mapped[str] = mapped_column(String(40), default="slide_up")
+    transition_style: Mapped[str] = mapped_column(String(40), default="crossfade")
+    generator_used: Mapped[str] = mapped_column(String(40), default="programmatic")
+    image_path: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    video_path: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    approved: Mapped[bool] = mapped_column(default=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, onupdate=_utcnow
+    )
+
+
+class VisualAsset(Base):
+    __tablename__ = "visual_assets"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_uuid)
+    project_id: Mapped[str] = mapped_column(
+        String(36), ForeignKey("projects.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    scene_id: Mapped[str | None] = mapped_column(
+        String(36), ForeignKey("visual_scenes.id", ondelete="CASCADE"), nullable=True, index=True
+    )
+    asset_type: Mapped[str] = mapped_column(String(40), default="rendered_png")
+    file_path: Mapped[str] = mapped_column(String(500), nullable=False)
+    width: Mapped[int] = mapped_column(Integer, default=1080)
+    height: Mapped[int] = mapped_column(Integer, default=960)
+    metadata_json: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
+
+
 class JobLog(Base):
     __tablename__ = "job_logs"
 
