@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+*.egg-info/
+
+# Node / Next.js
+node_modules/
+frontend/.next/
+frontend/out/
+frontend/dist/
+
+# Environment & Secrets
+.env
+.env.local
+.env.*.local
+
+# Storage & Large Media / Weights
+storage/inputs/*
+storage/intermediate/*
+storage/outputs/*
+storage/models/*
+!storage/inputs/.gitkeep
+!storage/intermediate/.gitkeep
+!storage/outputs/.gitkeep
+!storage/models/.gitkeep
+*.mp4
+*.wav
+*.mp3
+*.png
+*.jpg
+*.safetensors
+*.ckpt
+*.pt
+*.pth
+*.gguf
+*.onnx
+
+# OS & Logs
+.DS_Store
+Thumbs.db
+*.log
