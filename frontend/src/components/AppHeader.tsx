@@ -17,6 +17,7 @@ export function AppHeader() {
   const [username, setUsername] = useState("admin");
   const [password, setPassword] = useState("");
   const [loginError, setLoginError] = useState<string | null>(null);
+  const [signedOut, setSignedOut] = useState(false);
 
   const loadStatus = async () => {
     try {
@@ -24,7 +25,6 @@ export function AppHeader() {
       setHealth(h);
       setAuthInfo(a);
     } catch {
-      // Backend might be restarting or auth required
       try {
         const h = await api.healthDetailed();
         setHealth(h);
@@ -45,6 +45,7 @@ export function AppHeader() {
     try {
       const res = await api.login(username, password);
       setToken(res.access_token);
+      setSignedOut(false);
       setShowLogin(false);
       setPassword("");
       await loadStatus();
@@ -55,7 +56,8 @@ export function AppHeader() {
 
   const handleLogout = () => {
     setToken(null);
-    loadStatus();
+    setSignedOut(true);
+    setAuthInfo((prev) => (prev ? { ...prev, authenticated: false } : null));
   };
 
   return (
@@ -92,7 +94,7 @@ export function AppHeader() {
               </span>
             )}
 
-            {authInfo?.authenticated ? (
+            {authInfo?.authenticated && !signedOut ? (
               <button
                 onClick={handleLogout}
                 className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1 font-medium text-slate-700 hover:bg-slate-50"

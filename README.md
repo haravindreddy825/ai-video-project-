@@ -77,17 +77,25 @@ ai-video-studio/
 
 ---
 
-## Quick Start (Windows 11)
+## Quick Start (Windows 11 — First Local Release)
 
-1. **Start FastAPI Backend** (`http://localhost:8000`, Swagger at `/docs`):
-   ```powershell
-   .\scripts\start_backend.ps1
-   ```
-2. **Start Next.js Studio UI** (`http://localhost:3000`):
-   ```powershell
-   .\scripts\start_frontend.ps1
-   ```
+1. **First-time setup** (if not already installed):
+   - Copy `.env.example` to `.env` (defaults to local SQLite; zero Docker/Postgres required).
+   - Install backend dependencies in `backend\.venv` (Python 3.12) and frontend dependencies in `frontend\node_modules`.
+   - Download local CPU audio/alignment models (~480 MB):
+     ```powershell
+     backend\.venv\Scripts\python.exe scripts\download_audio_models.py
+     ```
+2. **Launch the complete studio** (one click or one command):
+   - Double-click `start.bat` or run:
+     ```powershell
+     .\scripts\start_studio.ps1
+     ```
+3. **Open in Browser**:
+   - **Studio UI**: `http://127.0.0.1:3000`
+   - **Backend API & Docs**: `http://127.0.0.1:8000/docs`
+   - **Default Sign-In** (optional unless `AUTH_REQUIRED=true` in `.env`): `admin` / `studio-local`
 
 ## Status
 
-- **Phases 0–6 (Backend Core, Audio & Alignment, Avatar Animation, Educational Visuals, 1080x1920 Compositor & MP4 Export, Next.js Studio UI)**: Implemented, tested, and pushed.
+- **First Local Release (v0.1.0)**: Ready and end-to-end verified on Windows 11 (Dashboard, Script & Kokoro-82M TTS + faster-whisper Alignment, Character Identity & Expressive Avatar, Educational Visuals, 1080×1920 Vertical MP4 Export & Download).
