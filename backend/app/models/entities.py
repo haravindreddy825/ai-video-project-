@@ -156,6 +156,31 @@ class GenerationJob(Base):
     )
 
 
+class AvatarJob(Base):
+    __tablename__ = "avatar_jobs"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_uuid)
+    project_id: Mapped[str] = mapped_column(
+        String(36), ForeignKey("projects.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    character_id: Mapped[str] = mapped_column(String(36), nullable=False)
+    audio_id: Mapped[str] = mapped_column(String(36), nullable=False)
+    adapter_used: Mapped[str] = mapped_column(String(60), default="local_expressive")
+    status: Mapped[str] = mapped_column(String(30), default="queued", index=True)
+    progress_pct: Mapped[int] = mapped_column(Integer, default=0)
+    width: Mapped[int] = mapped_column(Integer, default=1080)
+    height: Mapped[int] = mapped_column(Integer, default=960)
+    fps: Mapped[int] = mapped_column(Integer, default=25)
+    duration_sec: Mapped[float] = mapped_column(Float, default=0.0)
+    video_file_path: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    continuity_report_json: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, onupdate=_utcnow
+    )
+
+
 class JobLog(Base):
     __tablename__ = "job_logs"
 

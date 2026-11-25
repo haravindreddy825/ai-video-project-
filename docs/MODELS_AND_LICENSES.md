@@ -22,6 +22,8 @@ All models were evaluated against the development hardware (**NVIDIA RTX 3050 La
 | **MuseTalk** | `TMElyralab/MuseTalk` | **MIT** | Relies on Whisper/DWPose/SD-VAE (MIT/Apache) | **~4 GB (FP16)** | **Secondary Local Lip-Sync Engine.** Very reliable on 4–6 GB GPUs. |
 | **LivePortrait** | `KwaiVGI/LivePortrait` | **MIT (code)** | InsightFace weights are **non-commercial**; must swap detector for MediaPipe/BlazeFace for commercial use | **~4–6 GB (FP16)** | **Expression & Gaze Enhancer.** Great for blinking, eye movement, and head pose control. |
 | **SadTalker** | `OpenTalker/SadTalker` | **Apache-2.0 (code)** | Some 3DMM / GFPGAN checkpoints have non-commercial clauses | **~4–6 GB (256px)** | **Fallback Only** (lower visual fidelity than Ditto/MuseTalk). |
+| **Local Expressive (`local_expressive`)** | Built-in (`OpenCV` + `imageio-ffmpeg` + `scikit-image`) | **Apache-2.0 / BSD-3-Clause** | None | **0 GB VRAM (CPU/OpenCV)** | **Default Local Windows 11 Adapter.** Real 1080x960 lip-sync, 9 emotions, blinking, head/upper-body sway, and SSIM chunk continuity. |
+| **EchoMimicV2 (`comfyui_echomimic_v2` / `cloud_avatar`)** | `antgroup/echomimic_v2` | **Apache-2.0** | None (permissive) | **~6 GB (`--lowvram` ComfyUI) / 16–24 GB native** | **Half-Body + Hand Gestures Adapter** (auto-falls back to `local_expressive` when ComfyUI/Cloud is offline). |
 
 ---
 
