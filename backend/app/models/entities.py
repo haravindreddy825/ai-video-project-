@@ -230,6 +230,34 @@ class VisualAsset(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
 
 
+class VideoExport(Base):
+    __tablename__ = "video_exports"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_uuid)
+    project_id: Mapped[str] = mapped_column(
+        String(36), ForeignKey("projects.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    audio_id: Mapped[str] = mapped_column(String(36), nullable=False)
+    avatar_job_id: Mapped[str] = mapped_column(String(36), nullable=False)
+    status: Mapped[str] = mapped_column(String(30), default="queued", index=True)
+    progress_pct: Mapped[int] = mapped_column(Integer, default=0)
+    encoder_used: Mapped[str] = mapped_column(String(40), default="libx264")
+    include_subtitles: Mapped[bool] = mapped_column(default=True)
+    width: Mapped[int] = mapped_column(Integer, default=1080)
+    height: Mapped[int] = mapped_column(Integer, default=1920)
+    fps: Mapped[int] = mapped_column(Integer, default=30)
+    duration_sec: Mapped[float] = mapped_column(Float, default=0.0)
+    output_mp4_path: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    subtitle_ass_path: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    validation_report_json: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    logs_json: Mapped[list | None] = mapped_column(JSON, nullable=True)
+    error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, onupdate=_utcnow
+    )
+
+
 class JobLog(Base):
     __tablename__ = "job_logs"
 

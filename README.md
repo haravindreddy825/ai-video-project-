@@ -79,4 +79,5 @@ ai-video-studio/
 
 ## Status
 
-**Phase 0 (Architecture & Foundation)**: Completed and awaiting architecture approval before Phase 1 implementation begins.
+- **Phase 0–5 (Backend Core, Audio & Alignment, Avatar Animation, Educational Visuals, 1080x1920 Compositor & MP4 Export)**: Implemented, end-to-end tested (30s and 2-minute 1080x1920 MP4 exports), and verified.
+- **Phase 6 (Next.js Studio UI)**: Pending.

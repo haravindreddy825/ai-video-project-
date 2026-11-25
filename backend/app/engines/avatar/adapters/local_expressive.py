@@ -70,6 +70,62 @@ class LocalExpressiveAvatarAdapter(BaseAvatarAdapter):
         return 0.0
 
     @classmethod
+    def _precompute_face_roi_masks(
+        cls, pack: CharacterIdentityPack, img_w: int, img_h: int
+    ) -> dict:
+        fx0 = max(0, pack.face_box.x - int(pack.face_box.w * 0.25))
+        fy0 = max(0, pack.face_box.y - int(pack.face_box.h * 0.25))
+        fx1 = min(img_w, pack.face_box.x + int(pack.face_box.w * 1.25))
+        fy1 = min(img_h, pack.face_box.y + int(pack.face_box.h * 1.25))
+
+        gx, gy = np.meshgrid(
+            np.arange(fx0, fx1, dtype=np.float32),
+            np.arange(fy0, fy1, dtype=np.float32),
+        )
+        face_w = float(pack.face_box.w)
+        mx, my = float(pack.mouth_center.x), float(pack.mouth_center.y)
+        mouth_rx = max(18.0, face_w * 0.22)
+        mouth_ry = max(12.0, face_w * 0.14)
+
+        dist_m2 = ((gx - mx) / mouth_rx) ** 2 + ((gy - my) / mouth_ry) ** 2
+        mouth_mask = np.exp(-np.clip(dist_m2, 0.0, 8.0))
+        lower_half = np.where(gy >= my, 1.0, -0.25)
+        corner_factor = np.clip(np.abs(gx - mx) / mouth_rx, 0.0, 1.2)
+
+        eye_rx = max(12.0, face_w * 0.11)
+        eye_ry = max(7.0, face_w * 0.06)
+        eye_blink_field = np.zeros_like(gx)
+        brow_lift_field = np.zeros_like(gx)
+        for eye in (pack.eye_left, pack.eye_right):
+            ex, ey = float(eye.x), float(eye.y)
+            d_eye2 = ((gx - ex) / eye_rx) ** 2 + ((gy - ey) / eye_ry) ** 2
+            eye_mask = np.exp(-np.clip(d_eye2, 0.0, 8.0))
+            upper_lid = np.where(gy <= ey, 1.0, -0.3)
+            eye_blink_field -= eye_mask * upper_lid * 5.5
+
+            d_brow2 = ((gx - ex) / (eye_rx * 1.2)) ** 2 + (
+                (gy - (ey - eye_ry * 1.6)) / (eye_ry * 1.1)
+            ) ** 2
+            brow_lift_field += np.exp(-np.clip(d_brow2, 0.0, 8.0)) * 0.7
+
+        roi_x, roi_y = np.meshgrid(
+            np.arange(fx1 - fx0, dtype=np.float32),
+            np.arange(fy1 - fy0, dtype=np.float32),
+        )
+        return {
+            "fx0": fx0,
+            "fy0": fy0,
+            "fx1": fx1,
+            "fy1": fy1,
+            "roi_x": roi_x,
+            "roi_y": roi_y,
+            "speech_dy": -(mouth_mask * lower_half * 10.0),
+            "smile_dy": mouth_mask * corner_factor * 0.8,
+            "blink_dy": eye_blink_field,
+            "brow_dy": brow_lift_field,
+        }
+
+    @classmethod
     def _render_frame(
         cls,
         base_img: np.ndarray,
@@ -77,62 +133,37 @@ class LocalExpressiveAvatarAdapter(BaseAvatarAdapter):
         t_sec: float,
         speech_energy: float,
         seg: AvatarTimelineSegment,
-        grid_x: np.ndarray,
-        grid_y: np.ndarray,
+        roi_masks: dict,
     ) -> np.ndarray:
         h, w = base_img.shape[:2]
         brow_lift, smile_px, target_tilt = cls.EMOTION_PARAMS.get(
             seg.emotion, (0.0, 0.0, 0.0)
         )
-
-        # 1. Lip & jaw displacement driven by speech energy (0 during pauses)
         mouth_open = 0.0 if seg.is_pause else float(speech_energy)
-        mx, my = float(pack.mouth_center.x), float(pack.mouth_center.y)
-        face_w = float(pack.face_box.w)
-        mouth_rx = max(18.0, face_w * 0.22)
-        mouth_ry = max(12.0, face_w * 0.14)
-
-        dx = np.zeros_like(grid_x)
-        dy = np.zeros_like(grid_y)
-
-        # Localized mouth/jaw warp
-        dist_m2 = ((grid_x - mx) / mouth_rx) ** 2 + ((grid_y - my) / mouth_ry) ** 2
-        mouth_mask = np.exp(-np.clip(dist_m2, 0.0, 8.0))
-        # Lower lip moves down when speaking; mouth corners lift/drop with smile_px
-        lower_half = np.where(grid_y >= my, 1.0, -0.25)
-        dy -= mouth_mask * lower_half * (mouth_open * 10.0)
-        corner_factor = np.clip(np.abs(grid_x - mx) / mouth_rx, 0.0, 1.2)
-        dy += mouth_mask * corner_factor * (smile_px * 0.8)
-
-        # 2. Natural blinking & eyebrow expression
         blink = cls._blink_factor(t_sec)
-        eye_rx = max(12.0, face_w * 0.11)
-        eye_ry = max(7.0, face_w * 0.06)
-        for eye in (pack.eye_left, pack.eye_right):
-            ex, ey = float(eye.x), float(eye.y)
-            d_eye2 = ((grid_x - ex) / eye_rx) ** 2 + ((grid_y - ey) / eye_ry) ** 2
-            eye_mask = np.exp(-np.clip(d_eye2, 0.0, 8.0))
-            upper_lid = np.where(grid_y <= ey, 1.0, -0.3)
-            dy -= eye_mask * upper_lid * (blink * 5.5)
-            # Eyebrow region slightly above eye
-            d_brow2 = ((grid_x - ex) / (eye_rx * 1.2)) ** 2 + (
-                (grid_y - (ey - eye_ry * 1.6)) / (eye_ry * 1.1)
-            ) ** 2
-            brow_mask = np.exp(-np.clip(d_brow2, 0.0, 8.0))
-            dy += brow_mask * (brow_lift * 0.7)
 
-        # Remap facial expressions onto base image
-        map_x = (grid_x + dx).astype(np.float32)
-        map_y = (grid_y + dy).astype(np.float32)
-        expr_img = cv2.remap(
-            base_img,
-            map_x,
-            map_y,
+        fx0, fy0, fx1, fy1 = (
+            roi_masks["fx0"],
+            roi_masks["fy0"],
+            roi_masks["fx1"],
+            roi_masks["fy1"],
+        )
+        dy_roi = (
+            roi_masks["speech_dy"] * mouth_open
+            + roi_masks["smile_dy"] * smile_px
+            + roi_masks["blink_dy"] * blink
+            + roi_masks["brow_dy"] * brow_lift
+        )
+        expr_img = base_img.copy()
+        expr_img[fy0:fy1, fx0:fx1] = cv2.remap(
+            base_img[fy0:fy1, fx0:fx1],
+            roi_masks["roi_x"],
+            (roi_masks["roi_y"] + dy_roi).astype(np.float32),
             interpolation=cv2.INTER_LINEAR,
             borderMode=cv2.BORDER_REPLICATE,
         )
 
-        # 3. Head tilt, nod & upper-body breathing/gesture sway
+        # Head tilt, nod & upper-body breathing/gesture sway
         breath_y = math.sin(2.0 * math.pi * 0.28 * t_sec) * 2.2
         gesture_amp = 1.0 if not seg.is_pause else 0.25
         if "nod" in seg.head_movement:
@@ -143,20 +174,19 @@ class LocalExpressiveAvatarAdapter(BaseAvatarAdapter):
             sway_x += math.sin(2.0 * math.pi * 0.85 * t_sec) * 2.5 * gesture_amp
 
         angle = target_tilt + math.sin(2.0 * math.pi * 0.35 * t_sec) * 0.7 * gesture_amp
-        scale = 1.015  # Slight zoom prevents any edge artifacts during affine motion
+        scale = 1.015
         center = (w * 0.5, pack.shoulder_y * 0.75)
         mat = cv2.getRotationMatrix2D(center, angle, scale)
         mat[0, 2] += sway_x
         mat[1, 2] += breath_y
 
-        animated = cv2.warpAffine(
+        return cv2.warpAffine(
             expr_img,
             mat,
             (w, h),
             flags=cv2.INTER_LINEAR,
             borderMode=cv2.BORDER_REPLICATE,
         )
-        return animated
 
     def _encode_chunk_ffmpeg(
         self,
@@ -226,9 +256,7 @@ class LocalExpressiveAvatarAdapter(BaseAvatarAdapter):
         total_frames = len(envelope)
         frames_per_chunk = max(fps, int(round(chunk_duration_sec * fps)))
 
-        grid_x, grid_y = np.meshgrid(
-            np.arange(w, dtype=np.float32), np.arange(h, dtype=np.float32)
-        )
+        roi_masks = self._precompute_face_roi_masks(identity_pack, w, h)
 
         work_dir = output_mp4_path.parent / f"_chunks_{output_mp4_path.stem}"
         work_dir.mkdir(parents=True, exist_ok=True)
@@ -253,8 +281,7 @@ class LocalExpressiveAvatarAdapter(BaseAvatarAdapter):
                     t_sec,
                     float(envelope[f_idx]),
                     seg,
-                    grid_x,
-                    grid_y,
+                    roi_masks,
                 )
                 chunk_frames.append(frame)
 

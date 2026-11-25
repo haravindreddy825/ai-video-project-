@@ -4,6 +4,7 @@ from fastapi.responses import JSONResponse
 
 from app.api.audio_routes import audio_router
 from app.api.avatar_routes import avatar_router
+from app.api.export_routes import export_router
 from app.api.routes import router
 from app.api.visual_routes import visual_router
 from app.core.config import settings
@@ -42,6 +43,7 @@ def create_app() -> FastAPI:
     app.include_router(audio_router)
     app.include_router(avatar_router)
     app.include_router(visual_router)
+    app.include_router(export_router)
     return app
 
 

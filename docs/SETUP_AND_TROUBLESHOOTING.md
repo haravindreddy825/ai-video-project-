@@ -33,4 +33,6 @@ Kokoro-82M ONNX (`~337 MB`) and `faster-whisper` `base.en` (`~145 MB`) run on **
 backend\.venv\Scripts\python.exe scripts\download_audio_models.py
 ```
 
-The script checks `MIN_FREE_DISK_GB` before downloading into `storage/models/`.
+## 4. Bundled FFmpeg & Final 1080x1920 Export (Phase 5)
+
+The backend uses `imageio-ffmpeg` (`ffmpeg-win-x86_64` with `vstack`, `ass`, `loudnorm`, `libx264`, and `aac`) so Phase 3–5 video rendering and composition work out of the box on Windows 11 even if system `ffmpeg` is not on `PATH`. CPU `libx264` is the reliable default; `prefer_nvenc=true` is optional and auto-falls back to `libx264` if NVENC is unavailable.
