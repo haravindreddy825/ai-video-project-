@@ -88,9 +88,38 @@ class VoiceConfig(Base):
     preset_voice_id: Mapped[str | None] = mapped_column(String(80), nullable=True)
     sample_audio_path: Mapped[str | None] = mapped_column(String(500), nullable=True)
     speaking_rate: Mapped[float] = mapped_column(Float, default=1.0)
+    volume: Mapped[float] = mapped_column(Float, default=1.0)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
 
     project: Mapped["Project"] = relationship(back_populates="voice_configs")
+
+
+class AudioTrack(Base):
+    __tablename__ = "audio_tracks"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_uuid)
+    project_id: Mapped[str] = mapped_column(
+        String(36), ForeignKey("projects.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    script_id: Mapped[str | None] = mapped_column(String(36), nullable=True)
+    voice_config_id: Mapped[str | None] = mapped_column(String(36), nullable=True)
+    engine: Mapped[str] = mapped_column(String(40), default="kokoro")
+    voice_id: Mapped[str] = mapped_column(String(80), default="af_heart")
+    speed: Mapped[float] = mapped_column(Float, default=1.0)
+    volume: Mapped[float] = mapped_column(Float, default=1.0)
+    status: Mapped[str] = mapped_column(String(30), default="queued", index=True)
+    progress_pct: Mapped[int] = mapped_column(Integer, default=0)
+    audio_file_path: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    sample_rate: Mapped[int] = mapped_column(Integer, default=24000)
+    duration_sec: Mapped[float] = mapped_column(Float, default=0.0)
+    original_script_text: Mapped[str] = mapped_column(Text, nullable=False)
+    alignment_json: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    script_intelligence_json: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, onupdate=_utcnow
+    )
 
 
 class GenerationJob(Base):

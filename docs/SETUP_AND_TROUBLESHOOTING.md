@@ -25,5 +25,12 @@
   - Ensure `SEQUENTIAL_GPU_LOCK=true` in `.env` so Celery runs with `--concurrency=1` on the GPU queue.
   - Ensure ComfyUI is launched with `--lowvram` (or `--novram` if sharing with another process) and call `/free` after visual generation.
   - Keep avatar chunk duration at `10–15` seconds and resolution at `512x512` or `576x1024` before upscaling/compositing to `960x1080` via FFmpeg.
-- **Disk Space Warnings**:
-  - Before downloading weights, run `scripts/check_disk.py` (to be added in Phase 1). Never exceed `MAX_MODEL_STORAGE_GB=120`.
+## 3. Optional Audio & Alignment Model Download (Phase 2)
+
+Kokoro-82M ONNX (`~337 MB`) and `faster-whisper` `base.en` (`~145 MB`) run on **CPU by default** (`AUDIO_EXECUTION_DEVICE=cpu`) to preserve all 6 GB VRAM for visual/avatar stages:
+
+```powershell
+backend\.venv\Scripts\python.exe scripts\download_audio_models.py
+```
+
+The script checks `MIN_FREE_DISK_GB` before downloading into `storage/models/`.

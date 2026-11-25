@@ -50,8 +50,12 @@ class Settings(BaseSettings):
     # Engine Defaults
     COMFYUI_URL: str = "http://127.0.0.1:8188"
     TTS_ENGINE: str = "kokoro"
+    AUDIO_EXECUTION_DEVICE: Literal["cpu", "cuda", "auto"] = "cpu"
+    KOKORO_MODEL_FILENAME: str = "kokoro-v1.0.onnx"
+    KOKORO_VOICES_FILENAME: str = "voices-v1.0.bin"
     ASR_ENGINE: str = "faster-whisper"
-    ASR_MODEL_SIZE: str = "small"
+    ASR_MODEL_SIZE: str = "base.en"
+    ASR_COMPUTE_TYPE: str = "int8"
     AVATAR_ENGINE: str = "ditto"
     VISUAL_ENGINE: str = "hybrid_slide_sdxl_turbo"
 

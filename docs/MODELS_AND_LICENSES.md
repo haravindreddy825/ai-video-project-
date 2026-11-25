@@ -29,7 +29,7 @@ All models were evaluated against the development hardware (**NVIDIA RTX 3050 La
 
 | Model | GitHub Repository | License | Commercial Use? | VRAM Footprint | Role in Studio |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Kokoro-82M** | `hexgrad/kokoro` | **Apache-2.0** | Yes | **~1–2 GB** (or CPU) | **Default Preset Voice Engine.** Fast, crisp, multi-voice narration. |
+| **Kokoro-82M (ONNX)** | `hexgrad/kokoro` / `thewh1teagle/kokoro-onnx` | **Apache-2.0** (weights) / **MIT** (`kokoro-onnx`) | Yes | **0 GB VRAM (CPU ONNX)** (~337 MB disk) | **Default Preset Voice Engine.** Fast, crisp, multi-voice narration; chunks long scripts cleanly. |
 | **Chatterbox-Turbo (350M)** | `resemble-ai/chatterbox` | **MIT** | Yes | **~4–6 GB** | **Default Voice Cloning Engine.** Zero-shot cloning from user voice sample. |
 | **F5-TTS** | `SWivid/F5-TTS` | MIT (code) / **CC-BY-NC-4.0** (weights) | **No** (weights are non-commercial) | ~4–6 GB | **Excluded from default** due to NC weight license. |
 
@@ -39,7 +39,7 @@ All models were evaluated against the development hardware (**NVIDIA RTX 3050 La
 
 | Component | Tool / Model | License | VRAM Footprint | Notes |
 | :--- | :--- | :--- | :--- | :--- |
-| **ASR / Forced Alignment** | `faster-whisper` (`small`/`medium` INT8) | **MIT** | **~1.5–3.0 GB** | Word-level timestamps for exact visual sync. |
+| **ASR / Forced Alignment** | `faster-whisper` (`base.en` / `small` INT8) | **MIT** | **0 GB VRAM (CPU INT8 default)** / ~1.5–3 GB (CUDA) | Word-level timestamps, pause detection, and WAV-duration validation. |
 | **Scene Analysis** | `PySceneDetect` | **BSD-3-Clause** | **0 GB (CPU)** | Shot boundary detection for user-supplied B-roll. |
 | **Visuals (Text/Diagrams)** | Pillow / CairoSVG / Matplotlib / OpenCV | **MIT / BSD / HPND** | **0 GB (CPU)** | Renders crisp 960x1080 slides, diagrams, and kinetic text. |
 | **Visuals (AI Images)** | **SDXL-Turbo** (via ComfyUI) | **Stability AI Community License** | **~4.5–5.5 GB (FP16)** | Commercial allowed under $1M annual revenue. Fast 1–4 step generation. |

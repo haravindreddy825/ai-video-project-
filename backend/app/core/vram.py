@@ -4,6 +4,7 @@ import subprocess
 from typing import Literal, Optional
 
 import httpx
+import psutil
 
 from app.core.config import settings
 from app.core.logging import logger
@@ -105,6 +106,17 @@ class VRAMMonitor:
                 pass
 
         return VRAMMonitor.get_status()
+
+    @staticmethod
+    def get_ram_stats() -> dict[str, float]:
+        vm = psutil.virtual_memory()
+        gb = 1024 ** 3
+        return {
+            "total_gb": round(vm.total / gb, 2),
+            "available_gb": round(vm.available / gb, 2),
+            "used_gb": round(vm.used / gb, 2),
+            "percent": float(vm.percent),
+        }
 
 
 class ComputeRouter:

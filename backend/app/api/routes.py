@@ -90,6 +90,7 @@ async def detailed_health_check(db: AsyncSession = Depends(get_db)) -> dict[str,
             "source": vram.source,
         },
         "storage": disk,
+        "ram": VRAMMonitor.get_ram_stats(),
         "video_spec": {
             "resolution": f"{settings.OUTPUT_WIDTH}x{settings.OUTPUT_HEIGHT}",
             "layout": "top_bottom_50_50",
